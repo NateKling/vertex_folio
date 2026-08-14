@@ -1,0 +1,51 @@
+---
+interface Props {
+  src: string;
+  stateMachine?: string;
+  artboard?: string;
+  width?: number;
+  height?: number;
+  class?: string;
+}
+
+const { src, stateMachine, artboard, width = 400, height = 400, class: className } = Astro.props;
+---
+
+<canvas
+  class:list={['rive-canvas', className]}
+  data-rive-src={src}
+  data-rive-state-machine={stateMachine}
+  data-rive-artboard={artboard}
+  width={width}
+  height={height}
+></canvas>
+
+<script>
+  import { Rive } from '@rive-app/canvas';
+
+  const canvases = document.querySelectorAll<HTMLCanvasElement>('canvas[data-rive-src]');
+
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const canvas = entry.target as HTMLCanvasElement;
+        obs.unobserve(canvas);
+
+        const rive: Rive = new Rive({
+          src: canvas.dataset.riveSrc!,
+          canvas,
+          stateMachines: canvas.dataset.riveStateMachine || undefined,
+          artboard: canvas.dataset.riveArtboard || undefined,
+          autoplay: true,
+          onLoad: () => {
+            rive.resizeDrawingSurfaceToCanvas();
+          }
+        });
+      }
+    },
+    { rootMargin: '100px' }
+  );
+
+  canvases.forEach((canvas) => observer.observe(canvas));
+</script>

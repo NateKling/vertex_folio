@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from 'astro:content';
+import ProjectLayout from '../../../layouts/ProjectLayout.astro';
+import GameEmbed from '../../../components/GameEmbed.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { id: project.id },
+    props: { project }
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+
+<ProjectLayout
+  title={project.data.title}
+  description={project.data.description}
+  pubDate={project.data.pubDate}
+  kind={project.data.kind}
+  tags={project.data.tags}
+  coverImage={project.data.coverImage}
+  links={project.data.links}
+>
+  {project.data.kind === 'game' && project.data.embed && <GameEmbed src={project.data.embed} title={project.data.title} />}
+  <Content />
+</ProjectLayout>

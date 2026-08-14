@@ -1,0 +1,20 @@
+---
+interface Props {
+  src: string;
+  title: string;
+  aspectRatio?: string;
+}
+
+const { src, title, aspectRatio = '16 / 9' } = Astro.props;
+---
+
+<div class="game-embed mb-8 overflow-hidden rounded-lg border border-neutral-800 bg-black" style={`aspect-ratio: ${aspectRatio}`}>
+  <iframe
+    src={src}
+    title={title}
+    loading="lazy"
+    allow="autoplay; fullscreen; gamepad"
+    allowfullscreen
+    class="h-full w-full"
+  ></iframe>
+</div>

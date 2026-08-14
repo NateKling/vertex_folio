@@ -1,0 +1,85 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  kind: 'game' | 'web';
+  tags: string[];
+  coverImage: ImageMetadata;
+  links: { label: string; url: string }[];
+}
+
+const { title, description, pubDate, kind, tags, coverImage, links } = Astro.props;
+---
+
+<BaseLayout title={`${title} — Projects`} description={description}>
+  <article>
+    <header class="mb-8">
+      <p class="text-xs uppercase tracking-wide text-neutral-500">
+        {kind === 'game' ? 'Game' : 'Web Project'}
+      </p>
+      <h1 class="mt-1 text-3xl font-bold tracking-tight text-neutral-100">{title}</h1>
+      <p class="mt-2 text-sm text-neutral-500">
+        <time datetime={pubDate.toISOString()}>
+          {pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </time>
+      </p>
+      {
+        tags.length > 0 && (
+          <ul class="mt-3 flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <li class="rounded-full bg-neutral-800 px-3 py-1 text-xs text-neutral-300">{tag}</li>
+            ))}
+          </ul>
+        )
+      }
+      {
+        links.length > 0 && (
+          <ul class="mt-4 flex flex-wrap gap-4">
+            {links.map((link) => (
+              <li>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm font-medium text-neutral-100 underline underline-offset-4 hover:text-white"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+    <Image
+      src={coverImage}
+      alt={title}
+      class="mb-8 w-full rounded-lg object-cover"
+      widths={[400, 800, 1200]}
+      sizes="(min-width: 1024px) 800px, 100vw"
+    />
+    <div class="article-content">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-content :global(p) {
+    margin-bottom: 1rem;
+    line-height: 1.75;
+    color: var(--color-neutral-300);
+  }
+  .article-content :global(h2) {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-neutral-100);
+  }
+</style>

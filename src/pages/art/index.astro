@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Card from '../../components/Card.astro';
+
+const artworks = (await getCollection('art')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout title="Art" description="Digital paintings and illustrations.">
+  <h1 class="mb-8 text-3xl font-bold tracking-tight text-neutral-100">Art</h1>
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      artworks.map((art) => (
+        <Card href={`/art/${art.id}/`} title={art.data.title} meta={art.data.medium} image={art.data.images[0]} />
+      ))
+    }
+  </div>
+  {artworks.length === 0 && <p class="text-neutral-500">No artwork yet.</p>}
+</BaseLayout>

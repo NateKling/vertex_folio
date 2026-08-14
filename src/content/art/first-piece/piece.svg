@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+  <rect width="900" height="1200" fill="#1e1b4b" />
+  <circle cx="450" cy="500" r="220" fill="#7c3aed" opacity="0.6" />
+  <text x="450" y="1100" fill="#c4b5fd" font-family="system-ui, sans-serif" font-size="32" text-anchor="middle">
+    Artwork Placeholder
+  </text>
+</svg>
