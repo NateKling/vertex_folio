@@ -1,0 +1,235 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  images: ImageMetadata[];
+  alt?: string;
+  loop?: boolean;
+  autoplay?: boolean;
+  /** Milliseconds between auto-advances. */
+  autoplayDelay?: number;
+  class?: string;
+  /** Skip resizing/re-encoding and disable smoothing so pixel art (and GIFs) stay crisp. */
+  pixelArt?: boolean;
+  /** Scale the slide image up slightly when the cursor is over it. */
+  hoverZoom?: boolean;
+  /** Clicking a slide opens it full-size over a blurred backdrop. */
+  lightbox?: boolean;
+}
+
+const {
+  images,
+  alt = '',
+  loop = true,
+  autoplay = true,
+  autoplayDelay = 4000,
+  class: className,
+  pixelArt = false,
+  hoverZoom = false,
+  lightbox = false
+} = Astro.props;
+
+const zoomClass = hoverZoom ? 'transition-transform duration-300 ease-out hover:scale-110' : '';
+const lightboxClass = lightbox ? 'cursor-zoom-in' : '';
+
+const uid = `carousel-${crypto.randomUUID().slice(0, 8)}`;
+---
+
+<div
+  class:list={['carousel-root group/carousel relative my-6', className]}
+  data-carousel={uid}
+  data-loop={loop}
+  data-autoplay={autoplay}
+  data-autoplay-delay={autoplayDelay}
+  data-pixel-art={pixelArt}
+  data-lightbox={lightbox}
+>
+  <div class="swiper overflow-hidden rounded-lg">
+    <div class="swiper-wrapper">
+      {
+        images.map((image, i) => (
+          <div class="swiper-slide">
+            {pixelArt ? (
+              <img
+                src={image.src}
+                width={image.width}
+                height={image.height}
+                alt={alt ? `${alt} ${i + 1}` : `Slide ${i + 1}`}
+                data-full-src={image.src}
+                class:list={[
+                  'aspect-video w-full object-cover [image-rendering:pixelated]',
+                  zoomClass,
+                  lightboxClass
+                ]}
+              />
+            ) : (
+              <Image
+                src={image}
+                alt={alt ? `${alt} ${i + 1}` : `Slide ${i + 1}`}
+                data-full-src={image.src}
+                class:list={['aspect-video w-full object-cover', zoomClass, lightboxClass]}
+                widths={[400, 800, 1200]}
+                sizes="(min-width: 768px) 768px, 100vw"
+              />
+            )}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <button
+    type="button"
+    class="carousel-prev absolute top-1/2 left-2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-neutral-950/70 text-neutral-100 opacity-0 transition-opacity group-hover/carousel:opacity-100 hover:bg-neutral-950/90 focus-visible:opacity-100"
+    aria-label="Previous slide"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+  <button
+    type="button"
+    class="carousel-next absolute top-1/2 right-2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-neutral-950/70 text-neutral-100 opacity-0 transition-opacity group-hover/carousel:opacity-100 hover:bg-neutral-950/90 focus-visible:opacity-100"
+    aria-label="Next slide"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+    </svg>
+  </button>
+
+  <div class="carousel-pagination mt-3 flex justify-center gap-1.5"></div>
+
+  {
+    lightbox && (
+      <div
+        class="carousel-lightbox fixed inset-0 z-50 hidden items-center justify-center bg-neutral-950/80 opacity-0 backdrop-blur-md transition-opacity duration-200"
+        data-lightbox-overlay
+      >
+        <button
+          type="button"
+          class="lightbox-close absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-950/70 text-neutral-100 hover:bg-neutral-950/90"
+          aria-label="Close full-size image"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <img class="lightbox-img max-h-[85vh] max-w-[90vw] rounded-lg object-contain" alt="" />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .carousel-pagination :global(.swiper-pagination-bullet) {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--color-neutral-700, #404040);
+    opacity: 1;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .carousel-pagination :global(.swiper-pagination-bullet-active) {
+    background: var(--color-neutral-100, #f5f5f5);
+  }
+</style>
+
+<script>
+  import Swiper from 'swiper';
+  import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+  import 'swiper/css';
+
+  const roots = document.querySelectorAll<HTMLElement>('[data-carousel]');
+
+  roots.forEach((root) => {
+    const autoplayEnabled = root.dataset.autoplay === 'true';
+    const baseDelay = Number(root.dataset.autoplayDelay) || 4000;
+
+    const swiper = new Swiper(root.querySelector('.swiper') as HTMLElement, {
+      modules: [Autoplay, Navigation, Pagination],
+      loop: root.dataset.loop === 'true',
+      autoplay: autoplayEnabled ? { delay: baseDelay, disableOnInteraction: false } : false,
+      navigation: {
+        prevEl: root.querySelector('.carousel-prev') as HTMLElement,
+        nextEl: root.querySelector('.carousel-next') as HTMLElement
+      },
+      pagination: {
+        el: root.querySelector('.carousel-pagination') as HTMLElement,
+        clickable: true
+      }
+    });
+
+    if (autoplayEnabled) {
+      // Manually clicking "next" doubles the delay for just the following
+      // auto-advance, then reverts back to the normal pace.
+      let revertTimeout: ReturnType<typeof setTimeout> | undefined;
+
+      swiper.on('navigationNext', () => {
+        const extendedDelay = baseDelay * 2;
+
+        clearTimeout(revertTimeout);
+        swiper.params.autoplay!.delay = extendedDelay;
+        swiper.autoplay.stop();
+        swiper.autoplay.start();
+
+        revertTimeout = setTimeout(() => {
+          swiper.params.autoplay!.delay = baseDelay;
+        }, extendedDelay);
+      });
+    }
+
+    if (root.dataset.lightbox !== 'true') return;
+
+    const overlay = root.querySelector<HTMLElement>('[data-lightbox-overlay]');
+    const overlayImg = overlay?.querySelector<HTMLImageElement>('.lightbox-img');
+    const closeBtn = overlay?.querySelector<HTMLElement>('.lightbox-close');
+    if (!overlay || !overlayImg || !closeBtn) return;
+
+    let autoplayWasRunning = false;
+
+    const openLightbox = (img: HTMLImageElement) => {
+      overlayImg.src = img.dataset.fullSrc || img.currentSrc || img.src;
+      overlayImg.alt = img.alt;
+      overlayImg.classList.toggle('[image-rendering:pixelated]', root.dataset.pixelArt === 'true');
+
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+      requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+      document.body.classList.add('overflow-hidden');
+
+      if (swiper.autoplay?.running) {
+        autoplayWasRunning = true;
+        swiper.autoplay.stop();
+      }
+    };
+
+    const closeLightbox = () => {
+      overlay.classList.add('opacity-0');
+      document.body.classList.remove('overflow-hidden');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }, 200);
+
+      if (autoplayWasRunning) {
+        swiper.autoplay.start();
+        autoplayWasRunning = false;
+      }
+    };
+
+    root.querySelectorAll<HTMLImageElement>('.swiper-slide img').forEach((img) => {
+      img.addEventListener('click', () => openLightbox(img));
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closeLightbox();
+    });
+    closeBtn.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !overlay.classList.contains('hidden')) closeLightbox();
+    });
+  });
+</script>

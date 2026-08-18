@@ -1,0 +1,52 @@
+---
+title: "The Chicken Bandit"
+pubDate: 2026-08-16
+kind: "game"
+tags: ["mobile","pixel-art","animation"]
+coverImage: "./cb-cover.jpg"
+description: "Mobile Game: The Chicken Bandit"
+links:
+  - label: "Source"
+    url: "https://github.com/your-username/demo-game"
+embed: "/games/demo/index.html"
+---
+
+import Carousel from '../../../components/Carousel.astro';
+import cover from './cb-cover.jpg';
+import screen1 from './screens/screen1.png'
+import screen2 from './screens/screen2.png'
+import screen3 from './screens/screen3.png'
+import screen4 from './screens/screen4.png'
+import screen5 from './screens/screen5.png'
+import screen6 from './screens/screen6.png'
+
+## Overview
+The Chicken Bandit is an action game developed by me and my brother. We both shared game design roles while I covered all the visual design and animation and he coded the game in his own custom game engine. The game initially released on android but eventually was ported to iOS and PC.
+
+## Art and Design 
+
+<div class="my-6 flex flex-col gap-8 sm:flex-row sm:items-center">
+  <div class="sm:w-1/3 sm:shrink-0">
+    The game has a quirky western theme featuring a heroic cowboy riding a chicken through a desert inhabited by robots. The visual style was inspired by snes games and classic spaghetti westerns.
+  </div>
+  <Carousel
+    images={[screen1, screen2, screen3, screen4, screen5, screen6]}
+    alt="Chicken Bandit screenshot"
+    class="my-0 max-w-sm sm:ml-auto"
+    pixelArt
+    hoverZoom
+    lightbox
+  />
+</div>
+
+## Animation Highlights
+Here are a few of my favorite animations from the project. 
+
+ <Carousel
+    images={[screen1, screen2, screen3, screen4, screen5, screen6]}
+    alt="Chicken Bandit screenshot"
+    class="max-w-med"
+    pixelArt
+    hoverZoom
+    lightbox
+  />

@@ -1,0 +1,37 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  images: ImageMetadata[];
+  alt?: string;
+  /** Skip resizing/re-encoding and disable smoothing so pixel art (and GIFs) stay crisp. */
+  pixelArt?: boolean;
+}
+
+const { images, alt = '', pixelArt = false } = Astro.props;
+---
+
+<div class="my-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+  {
+    images.map((image, i) =>
+      pixelArt ? (
+        <img
+          src={image.src}
+          width={image.width}
+          height={image.height}
+          alt={alt ? `${alt} ${i + 1}` : `Gallery image ${i + 1}`}
+          class="aspect-square w-full rounded-lg object-cover [image-rendering:pixelated]"
+        />
+      ) : (
+        <Image
+          src={image}
+          alt={alt ? `${alt} ${i + 1}` : `Gallery image ${i + 1}`}
+          class="aspect-square w-full rounded-lg object-cover"
+          widths={[200, 400]}
+          sizes="(min-width: 640px) 200px, 45vw"
+        />
+      )
+    )
+  }
+</div>
